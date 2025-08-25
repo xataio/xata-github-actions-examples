@@ -1,0 +1,52 @@
+name: Xata Clone (daily, on-demand)
+
+on:
+  schedule:
+    - cron: "0 8 * * *" # Clone production to staging nightly
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: 3
+  XATA_API_KEY: ${{ secrets.XATA_API_KEY }}
+  XATA_API_ENVIRONMENT: prod
+  XATA_ORGANIZATIONID: xata
+  XATA_PROJECTID: prj_9kttr5nbl16rn5qu24rvtblujg
+  XATA_BRANCHID: e80atan1sl5khdkr8pkc33fovk
+  XATA_BRANCHNAME: clone-target
+  XATA_DATABASENAME: app
+  # source is main branch in the same project
+  XATA_CLI_SOURCE_POSTGRES_URL: ${{ secrets.SOURCE_DATABASE_URL }}
+  PGSTREAM_POSTGRES_SNAPSHOT_ROLE: postgres
+
+jobs:
+  xata-clone:
+    name: Xata Clone
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
+          fetch-depth: 0
+          # This makes the PR pushed to use GITHUB_TOKEN and trigger the checks
+          persist-credentials: false
+
+      - name: Install Xata CLI
+        run: |
+          curl -fsSL https://xata.io/install.sh | bash
+          echo "/home/runner/.config/xata/bin" >> $GITHUB_PATH
+
+      - name: Check Xata Version and Status
+        run: |
+          xata version
+          xata status
+          xata branch view
+
+      - name: Xata Clone
+        run: |
+          xata clone start --source-url ${{ env.XATA_CLI_SOURCE_POSTGRES_URL }}

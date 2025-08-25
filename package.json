@@ -1,0 +1,8 @@
+{
+  "name": "xata-github-actions-examples",
+  "version": "1.0.0",
+  "description": "Examples of using Xata with GitHub Actions",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
+}
