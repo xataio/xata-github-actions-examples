@@ -72,20 +72,20 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           edit-mode: replace
           body: |
-            ### Xata Dev Branch
+            ### Xata PR Branch
 
-            Creating Xata Dev Branch for commit: ${{ github.sha }} / ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+            Creating Xata PR Branch for commit: ${{ github.sha }} / ${{ github.head_ref }}_${{ github.event.pull_request.number }}
 
             *Please wait for the comment to be updated with branch details.*
 
-      - name: Delete Any Existing Xata Dev Branch
+      - name: Delete Any Existing Xata PR Branch
         run: xata branch delete ${{ github.head_ref }}_${{ github.event.pull_request.number }} --yes
         continue-on-error: true
 
-      - name: Create Xata Dev Branch
+      - name: Create Xata PR Branch
         run: xata branch create --name ${{ github.head_ref }}_${{ github.event.pull_request.number }}
 
-      - name: Checkout Xata Dev Branch
+      - name: Checkout Xata PR Branch
         run: |
           echo XATA_BRANCHID=`xata branch get ${{ github.head_ref }}_${{ github.event.pull_request.number }} id` >> $GITHUB_ENV
 
@@ -103,9 +103,9 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           edit-mode: replace
           body: |
-            ### Xata Dev Branch
+            ### Xata PR Branch
 
-            Created Xata Dev Branch for commit: ${{ github.sha }} / ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+            Created Xata PR Branch for commit: ${{ github.sha }} / ${{ github.head_ref }}_${{ github.event.pull_request.number }}
 
             You can drop into the psql shell for this branch with the following command:
             ```
