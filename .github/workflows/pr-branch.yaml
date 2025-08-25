@@ -15,7 +15,7 @@ env:
   XATA_API_ENVIRONMENT: prod
   XATA_ORGANIZATIONID: xata
   XATA_PROJECTID: prj_9kttr5nbl16rn5qu24rvtblujg
-  XATA_BRANCHID: pa8dfj56th26r3ib4nml5psm94
+  XATA_BRANCHID: e80atan1sl5khdkr8pkc33fovk
   XATA_BRANCHNAME: main
   XATA_DATABASENAME: app
 
