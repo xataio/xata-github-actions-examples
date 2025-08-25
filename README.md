@@ -16,8 +16,8 @@
 
 ### Examples
 
-| Action                                     | URL                                                           |
-| ------------------------------------------ | ------------------------------------------------------------- |
-| Nightly Clone with PII removed             | [clone.yaml](./.github/workflows/clone.yaml)                  |
-| Create a Xata database branch in every PR  | [pr-branch](./.github/workflows/pr-branch.yaml)               |
-| Delete Xata database branch when PR closes | [delete-pr-branch](./.github/workflows/delete-pr-branch.yaml) |
+| Action                                     | URL                                                                                                                    |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Nightly Clone with PII removed             | [clone.yaml](./.github/workflows/clone.yaml)                                                                           |
+| Create a Xata database branch in every PR  | [pr-branch](./.github/workflows/pr-branch.yaml), [demo](https://github.com/xataio/xata-github-actions-examples/pull/2) |
+| Delete Xata database branch when PR closes | [delete-pr-branch](./.github/workflows/delete-pr-branch.yaml)                                                          |
