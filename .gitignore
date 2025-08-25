@@ -50,3 +50,5 @@ tmp/
 # Backup files
 *.backup
 *.bak
+
+.dburl

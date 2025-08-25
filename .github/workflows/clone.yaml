@@ -15,7 +15,7 @@ env:
   XATA_API_ENVIRONMENT: prod
   XATA_ORGANIZATIONID: xata
   XATA_PROJECTID: prj_9kttr5nbl16rn5qu24rvtblujg
-  XATA_BRANCHID: e80atan1sl5khdkr8pkc33fovk
+  XATA_BRANCHID: pa8dfj56th26r3ib4nml5psm94
   XATA_BRANCHNAME: clone-target
   XATA_DATABASENAME: app
   # source is main branch in the same project
@@ -25,9 +25,8 @@ env:
 jobs:
   xata-clone:
     name: Xata Clone
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 10
-    os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,6 +34,19 @@ jobs:
           fetch-depth: 0
           # This makes the PR pushed to use GITHUB_TOKEN and trigger the checks
           persist-credentials: false
+
+      - name: Install PostgreSQL client 17
+        run: |
+          sudo install -d /usr/share/keyrings
+          wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo gpg --dearmor -o /usr/share/keyrings/postgresql.gpg
+          echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+          which pg_dump
+          pg_dump --version
 
       - name: Install Xata CLI
         run: |
@@ -49,4 +61,4 @@ jobs:
 
       - name: Xata Clone
         run: |
-          xata clone start --source-url ${{ env.XATA_CLI_SOURCE_POSTGRES_URL }}
+          xata clone start --source-url ${{ env.XATA_CLI_SOURCE_POSTGRES_URL }} --validation-mode=relaxed
