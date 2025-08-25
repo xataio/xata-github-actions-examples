@@ -1,0 +1,114 @@
+name: Create Xata PR Branch
+
+on:
+  pull_request:
+    ignore-branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: 3
+  XATA_API_KEY: ${{ secrets.XATA_API_KEY }}
+  XATA_API_ENVIRONMENT: prod
+  XATA_ORGANIZATIONID: xata
+  XATA_PROJECTID: prj_9kttr5nbl16rn5qu24rvtblujg
+  XATA_BRANCHID: e80atan1sl5khdkr8pkc33fovk
+  XATA_BRANCHNAME: main
+  XATA_DATABASENAME: app
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+  pages: write
+  pull-requests: write
+
+jobs:
+  xata-pr-branch:
+    name: Create Xata PR Branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Find Previous Comment
+        id: find-comment
+        uses: peter-evans/find-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-includes: "Xata PR Branch"
+
+      - uses: actions/checkout@v4
+        with:
+          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
+          fetch-depth: 0
+          # This makes the PR pushed to use GITHUB_TOKEN and trigger the checks
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Install Xata CLI
+        run: |
+          curl -fsSL https://xata.io/install.sh | bash
+          echo "/home/runner/.config/xata/bin" >> $GITHUB_PATH
+
+      - name: Check Xata Status
+        run: |
+          xata status
+          xata branch view
+
+      - name: Create or Update Comment
+        id: create_comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            ### Xata PR Branch
+
+            Creating Xata PR Branch for commit: ${{ github.sha }} / ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+
+            *Please wait for the comment to be updated with branch details.*
+
+      - name: Delete Any Existing Xata PR Branch
+        run: xata branch delete ${{ github.head_ref }}_${{ github.event.pull_request.number }} --yes
+        continue-on-error: true
+
+      - name: Create Xata PR Branch
+        run: xata branch create --name ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+
+      - name: Checkout Xata PR Branch
+        run: |
+          echo XATA_BRANCHID=`xata branch get ${{ github.head_ref }}_${{ github.event.pull_request.number }} id` >> $GITHUB_ENV
+
+      - name: Check Xata Branch Status
+        run: xata branch view
+
+      - name: Wait for Branch to be healthy
+        run: xata branch wait-ready ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+
+      - name: Update Comment with Branch Details
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            ### Xata PR Branch
+
+            Created Xata PR Branch for commit: ${{ github.sha }} / ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+
+            You can drop into the psql shell for this branch with the following command:
+            ```
+            xata branch checkout ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+            psql `xata branch url`
+            ```
