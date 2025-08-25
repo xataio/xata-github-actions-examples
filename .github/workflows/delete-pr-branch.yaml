@@ -11,7 +11,6 @@ jobs:
     if: github.event.pull_request.merged == true || github.event.action == 'closed'
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/shared
 
       - name: Set Xata Environment Variables
         shell: bash
