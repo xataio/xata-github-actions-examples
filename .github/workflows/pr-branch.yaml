@@ -12,6 +12,7 @@ concurrency:
 env:
   FORCE_COLOR: 3
   XATA_API_KEY: ${{ secrets.XATA_API_KEY }}
+  HEAD_REF: $HEAD_REF
   XATA_API_ENVIRONMENT: prod
   XATA_ORGANIZATIONID: xata
   XATA_PROJECTID: prj_9kttr5nbl16rn5qu24rvtblujg
@@ -74,26 +75,26 @@ jobs:
           body: |
             ### Xata PR Branch
 
-            Creating Xata PR Branch for commit: ${{ github.sha }} / ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+            Creating Xata PR Branch for commit: ${{ github.sha }} / $HEAD_REF_${{ github.event.pull_request.number }}
 
             *Please wait for the comment to be updated with branch details.*
 
       - name: Delete Any Existing Xata PR Branch
-        run: xata branch delete ${{ github.head_ref }}_${{ github.event.pull_request.number }} --yes
+        run: xata branch delete $HEAD_REF_${{ github.event.pull_request.number }} --yes
         continue-on-error: true
 
       - name: Create Xata PR Branch
-        run: xata branch create --name ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+        run: xata branch create --name $HEAD_REF_${{ github.event.pull_request.number }}
 
       - name: Checkout Xata PR Branch
         run: |
-          echo XATA_BRANCHID=`xata branch get ${{ github.head_ref }}_${{ github.event.pull_request.number }} id` >> $GITHUB_ENV
+          echo XATA_BRANCHID=`xata branch get $HEAD_REF_${{ github.event.pull_request.number }} id` >> $GITHUB_ENV
 
       - name: Check Xata Branch Status
         run: xata branch view
 
       - name: Wait for Branch to be healthy
-        run: xata branch wait-ready ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+        run: xata branch wait-ready $HEAD_REF_${{ github.event.pull_request.number }}
 
       - name: Update Comment with Branch Details
         uses: peter-evans/create-or-update-comment@v1
@@ -105,10 +106,10 @@ jobs:
           body: |
             ### Xata PR Branch
 
-            Created Xata PR Branch for commit: ${{ github.sha }} / ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+            Created Xata PR Branch for commit: ${{ github.sha }} / $HEAD_REF_${{ github.event.pull_request.number }}
 
             You can drop into the psql shell for this branch with the following command:
             ```
-            xata branch checkout ${{ github.head_ref }}_${{ github.event.pull_request.number }}
+            xata branch checkout $HEAD_REF_${{ github.event.pull_request.number }}
             psql `xata branch url`
             ```

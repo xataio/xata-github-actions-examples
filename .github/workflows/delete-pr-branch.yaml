@@ -30,4 +30,6 @@ jobs:
           echo "/home/runner/.config/xata/bin" >> $GITHUB_PATH
 
       - name: Delete Preview Branch
-        run: xata branch delete "${{ github.event.pull_request.head.ref }}_${{ github.event.pull_request.number }}" --yes || true
+        env:
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: xata branch delete "${PR_HEAD_REF}_${{ github.event.pull_request.number }}" --yes || true
